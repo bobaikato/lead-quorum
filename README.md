@@ -1,4 +1,15 @@
+<img src="assets/banner.png" width="100%" alt="lead-quorum: two models read each lead independently, agree and the score adds up, disagree and it abstains" />
+
 # lead-quorum
+
+<p>
+<img src="https://img.shields.io/badge/license-MIT-6E56CF?style=flat-square" alt="MIT license">
+<img src="https://img.shields.io/badge/python-3.12-6E56CF?style=flat-square&logo=python&logoColor=white" alt="Python 3.12">
+<img src="https://img.shields.io/badge/tests-16%20passing-6E56CF?style=flat-square&logo=pytest&logoColor=white" alt="16 tests passing">
+<img src="https://img.shields.io/badge/Google%20ADK-2.3-6E56CF?style=flat-square" alt="Google ADK 2.3">
+<img src="https://img.shields.io/badge/A2A%20protocol-6E56CF?style=flat-square" alt="A2A protocol">
+<img src="https://img.shields.io/badge/Cloud%20Run-ready-6E56CF?style=flat-square&logo=googlecloud&logoColor=white" alt="Cloud Run ready">
+</p>
 
 A distributed multi-agent lead qualifier built on Google's Agent Development Kit (ADK) and
 the Agent2Agent (A2A) protocol. Two independent LLM readers, running **different models as
@@ -24,22 +35,24 @@ This system attacks all three by construction.
 
 ## Architecture
 
-```
-                       raw lead notes
-                             |
-                  orchestrator (SequentialAgent)
-                             |
-              ParallelAgent: two independent readers
-              /                              \
-   enrichment service                 rederive service
-   (A2A microservice,                 (A2A microservice,
-    gemini-flash-latest)               gemini-2.5-flash-lite)
-              \                              /
-               ScoringAgent (deterministic, no LLM)
-                             |
-               CorroborationAgent (deterministic)
-                             |
-            CONFIRMED / REVIEW / EXCLUDED (abstain)
+```mermaid
+flowchart TD
+    N["raw lead notes"] --> O["orchestrator (SequentialAgent)"]
+    O --> P["ParallelAgent: two independent readers"]
+    P --> A["enrichment reader<br/>gemini-flash-latest<br/>A2A microservice"]
+    P --> B["rederive reader<br/>gemini-2.5-flash-lite<br/>A2A microservice"]
+    A --> S["ScoringAgent<br/>deterministic, no LLM<br/>reason built where points are added"]
+    S --> C["CorroborationAgent<br/>deterministic, score-space compare"]
+    B --> C
+    C --> V1["CONFIRMED<br/>score + reconciling reason"]
+    C --> V2["REVIEW<br/>score stands, drift flagged"]
+    C --> V3["EXCLUDED<br/>abstain, flipped rule named"]
+
+    style A fill:#6E56CF,color:#fff
+    style B fill:#6E56CF,color:#fff
+    style V1 fill:#1f9d55,color:#fff
+    style V2 fill:#c98a00,color:#fff
+    style V3 fill:#c1121f,color:#fff
 ```
 
 - **Two readers, two models, two services.** Each reader is exposed over A2A with
@@ -75,6 +88,13 @@ EXCLUDED   readings disagree on which signals fire (prior_relationship: False vs
 That second answer is the point. One reader took "possibly renewing" as a renewal, the
 other did not, the score would differ, so no number is shown. A defensible abstention
 beats a fake-precise score built on a contradiction.
+
+Both, live in the web UI (the whole audit trail on screen, not just a number):
+
+<p align="center">
+  <img src="assets/shot-confirmed.png" width="49%" alt="CONFIRMED: score 60 with the reason that adds up, both readings agreeing on every field">
+  <img src="assets/shot-excluded.png" width="49%" alt="EXCLUDED: no score, the flipped rule named, the disagreeing rows highlighted in red">
+</p>
 
 ## Run it
 
