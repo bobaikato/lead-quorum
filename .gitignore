@@ -1,0 +1,18 @@
+# Secrets: never commit the real key
+.env
+
+# Local working docs (not part of the public repo)
+DESIGN.md
+SUBMISSION.md
+
+# Local virtual environment
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# macOS
+.DS_Store
