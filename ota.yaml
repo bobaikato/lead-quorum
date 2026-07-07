@@ -58,10 +58,9 @@ tasks:
         - setup:venv
         - setup:deps
     notes: |
-      This setup path is truthful to the repo as it exists today, but it exposes two real Ota gaps:
-      `uv venv` is still command-owned rather than a first-class virtualenv materialization surface,
-      and `uv pip install -r requirements.txt` is still command-owned rather than a first-class
-      Python requirements-file hydration lane.
+      This setup path now uses first-class Ota ownership for both repo-local virtualenv
+      materialization and uv requirements-file hydration, without falling back to repo-local shell
+      setup glue.
 
   setup:env:
     description: Create `.env` from `.env.example` without overwriting existing local values
@@ -83,12 +82,10 @@ tasks:
     category: setup
     internal: true
     safe_for_agent: true
-    script: |
-      if [ -d .venv ]; then
-        echo ".venv already exists; no recreate needed"
-      else
-        uv venv --python 3.12 .venv
-      fi
+    action:
+      kind: ensure_virtualenv
+      path: .venv
+      python: "3.12"
     requirements:
       toolchains:
         - python
@@ -96,22 +93,22 @@ tasks:
       writes:
         - .venv
     notes: |
-      Ota 1.6.23 does not yet ship a first-class repo-local virtualenv materialization body, so
-      this lane still needs shell-owned idempotency to express the real repo intent: ensure the
-      virtualenv exists without recreating it on every dependent execution.
+      The repo intent here is now expressed through Ota's first-class virtualenv materialization
+      surface.
 
   setup:deps:
     description: Install the pinned Python dependencies into the repo virtual environment
     category: setup
     internal: true
     safe_for_agent: true
-    command:
-      exe: uv
-      args:
-        - pip
-        - install
-        - -r
-        - requirements.txt
+    prepare:
+      kind: dependency_hydration
+      medium: package_dependencies
+      source:
+        kind: uv
+        cwd: .
+        mode: pip_requirements
+        requirements_file: requirements.txt
     depends_on:
       - setup:venv
     requirements:
@@ -123,9 +120,8 @@ tasks:
       network: true
       network_kind: dependency_hydration
     notes: |
-      The repo truth here is `uv pip install -r requirements.txt`, not `uv sync`. Ota 1.6.23 does
-      not yet own that as a first-class typed Python hydration surface, so this setup lane stays
-      command-owned on purpose.
+      The repo truth here is `uv pip install -r requirements.txt`, and Ota owns that through the
+      typed uv `pip_requirements` hydration lane.
 
   test:
     description: Run the deterministic local test surface that does not require a Gemini API key
@@ -187,10 +183,9 @@ tasks:
       exe: .venv/bin/uvicorn
       args:
         - web.app:app
-        - --host
-        - 127.0.0.1
-        - --port
-        - "8000"
+      runtime_projection:
+        listener: web:http
+        adapter: uvicorn
     runtime:
       kind: service
       listeners:
@@ -351,8 +346,8 @@ agent:
     ota:
       note: Only install ota if it is missing and installation is approved.
       source:
-        kind: version
-        version: v1.6.23
+        kind: branch
+        branch: 1.6.24-implementation
   notes: |
     Start with `ota validate`, then `ota doctor`, then `ota tasks --use`.
     Prefer `ota up --workflow verify` for deterministic validation and use the `live` or
