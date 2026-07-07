@@ -115,16 +115,22 @@ jobs:
           ota doctor --workflow verify --json . > ota-doctor.json
           ota doctor --workflow verify .
 
-      - name: Dry-run public task surface
+      - name: Dry-run supported task surface
+        if: ${{ matrix.native_execution }}
         shell: bash
         run: |
           ota run setup --dry-run --json .
           ota run test --dry-run --json .
           ota run test:live --dry-run --json .
           ota run demo:distributed --dry-run --json .
-          ota run docker:build --dry-run --json .
+
+      - name: Dry-run Docker build lane
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        shell: bash
+        run: ota run docker:build --dry-run --json .
 
       - name: Dry-run workflows
+        if: ${{ matrix.native_execution }}
         shell: bash
         run: |
           ota up --workflow verify --dry-run --json .
