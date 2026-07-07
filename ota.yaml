@@ -140,19 +140,6 @@ tasks:
         - tests/test_scoring_agent.py
         - tests/test_distributed_build.py
         - -q
-    variants:
-      - when:
-          os: windows
-        command:
-          exe: .venv/Scripts/python.exe
-          args:
-            - -m
-            - pytest
-            - tests/test_scoring.py
-            - tests/test_corroboration.py
-            - tests/test_scoring_agent.py
-            - tests/test_distributed_build.py
-            - -q
     safe_for_agent: true
     depends_on:
       - setup:venv
@@ -174,16 +161,6 @@ tasks:
         - pytest
         - tests/test_pipeline_live.py
         - -q
-    variants:
-      - when:
-          os: windows
-        command:
-          exe: .venv/Scripts/python.exe
-          args:
-            - -m
-            - pytest
-            - tests/test_pipeline_live.py
-            - -q
     requirements:
       toolchains:
         - python
@@ -214,17 +191,6 @@ tasks:
         - 127.0.0.1
         - --port
         - "8000"
-    variants:
-      - when:
-          os: windows
-        command:
-          exe: .venv/Scripts/uvicorn.exe
-          args:
-            - web.app:app
-            - --host
-            - 127.0.0.1
-            - --port
-            - "8000"
     runtime:
       kind: service
       listeners:
@@ -272,13 +238,6 @@ tasks:
       exe: .venv/bin/python
       args:
         - scripts/demo_distributed.py
-    variants:
-      - when:
-          os: windows
-        command:
-          exe: .venv/Scripts/python.exe
-          args:
-            - scripts/demo_distributed.py
     requirements:
       toolchains:
         - python
