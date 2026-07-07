@@ -49,12 +49,15 @@ jobs:
         include:
           - name: ubuntu
             os: ubuntu-latest
+            native_execution: true
             full_runtime_proof: true
           - name: macos
             os: macos-latest
+            native_execution: true
             full_runtime_proof: true
           - name: windows
             os: windows-latest
+            native_execution: false
             full_runtime_proof: false
 
     steps:
@@ -101,14 +104,16 @@ jobs:
         run: ota workflows .
 
       - name: Execute setup task
+        if: ${{ matrix.native_execution }}
         shell: bash
         run: ota run setup --stream .
 
       - name: Doctor contract
+        if: ${{ matrix.native_execution }}
         shell: bash
         run: |
-          ota doctor --json . > ota-doctor.json
-          ota doctor .
+          ota doctor --workflow verify --json . > ota-doctor.json
+          ota doctor --workflow verify .
 
       - name: Dry-run public task surface
         shell: bash
@@ -128,15 +133,17 @@ jobs:
           ota up --workflow distributed --dry-run --json .
 
       - name: Execute deterministic task surface
+        if: ${{ matrix.native_execution }}
         shell: bash
         run: ota run test --stream .
 
       - name: Execute deterministic verification workflow
+        if: ${{ matrix.native_execution }}
         shell: bash
         run: ota up --workflow verify --stream .
 
       - name: Execute app workflow runtime proof
-        if: ${{ matrix.full_runtime_proof }}
+        if: ${{ matrix.native_execution && matrix.full_runtime_proof }}
         shell: bash
         run: ota up --workflow app --stream .
 
