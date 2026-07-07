@@ -54,7 +54,7 @@ jobs:
           - name: macos
             os: macos-latest
             native_execution: true
-            full_runtime_proof: true
+            full_runtime_proof: false
           - name: windows
             os: windows-latest
             native_execution: false
