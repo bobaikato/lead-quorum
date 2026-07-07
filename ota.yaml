@@ -83,13 +83,12 @@ tasks:
     category: setup
     internal: true
     safe_for_agent: true
-    command:
-      exe: uv
-      args:
-        - venv
-        - --python
-        - "3.12"
-        - .venv
+    script: |
+      if [ -d .venv ]; then
+        echo ".venv already exists; no recreate needed"
+      else
+        uv venv --python 3.12 .venv
+      fi
     requirements:
       toolchains:
         - python
@@ -98,7 +97,8 @@ tasks:
         - .venv
     notes: |
       Ota 1.6.23 does not yet ship a first-class repo-local virtualenv materialization body, so
-      this lane stays command-owned.
+      this lane still needs shell-owned idempotency to express the real repo intent: ensure the
+      virtualenv exists without recreating it on every dependent execution.
 
   setup:deps:
     description: Install the pinned Python dependencies into the repo virtual environment
