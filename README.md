@@ -20,6 +20,9 @@ which scoring rules fire, the system **abstains** instead of guessing.
 The model proposes, the code disposes, and no score ships unless two independent readings
 agree it is real.
 
+> Recognized by DEV's *Build Multi-Agent Systems with ADK* education track (Cloud Run Badge).
+> [Read the writeup, with a live interactive Cloud Run demo you can paste your own notes into.](https://dev.to/vinimabreu/lead-quorum-a-multi-agent-lead-qualifier-that-refuses-to-guess-adk-a2a-5dom)
+
 ## Why this exists
 
 Lead scoring is usually one big prompt: paste the lead, ask for a number. Three things
