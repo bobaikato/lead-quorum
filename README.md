@@ -136,10 +136,21 @@ tests/       16 tests: reconciliation, abstention, agent wiring, live end to end
 
 - The rubric is a demo rubric (four rules). The point is the harness around it: swap in
   your own rules and the reconciliation test and corroboration keep holding.
-- Cross-model corroboration catches extraction variance and ambiguous input. Two models
-  from the same family can still share blind spots; the architecture takes a third
-  independent reader (any framework, any vendor, it is just another A2A service) if you
-  need stronger guarantees.
+- **Reader independence is nominal until measured.** The two readers here are Gemini flash
+  and flash-lite, one lineage, so they can fail the same way, and they correlate hardest on
+  exactly the hedged inputs where you most wanted a second opinion. The A2A card is what
+  makes real independence reachable (the second reader can be any vendor or framework
+  without touching the pipeline), but it is not cashed in with two same-family models. Treat
+  independence as a measured quantity, not an assumption: run both readers on a labeled
+  ambiguous set and check that they actually disagree when they should.
+- **A low EXCLUDED rate is not a health signal.** Score-space corroboration compares reader
+  against reader, which is orthogonal to whether the rubric is right. Both readers run the
+  same rubric, so a rubric that over-scores yields agreement, a low EXCLUDED rate, and a
+  CONFIRMED bucket nobody audits, all of which looks healthy from the outside. Corroboration
+  cannot catch this because the rubric sits upstream of both readers; auditing the rubric
+  takes a different instrument (calibration against labeled outcomes: is a CONFIRMED lead
+  actually a good lead), not a second reader. Both this and the independence limit above
+  were sharpened by ANP2 Network in the comments.
 - ADK's A2A support is marked experimental by Google (2.3.0); pin versions.
 
 MIT license.
