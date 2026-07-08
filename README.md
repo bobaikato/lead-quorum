@@ -9,6 +9,7 @@
 <img src="https://img.shields.io/badge/Google%20ADK-2.3-6E56CF?style=flat-square" alt="Google ADK 2.3">
 <img src="https://img.shields.io/badge/A2A%20protocol-6E56CF?style=flat-square" alt="A2A protocol">
 <img src="https://img.shields.io/badge/Cloud%20Run-ready-6E56CF?style=flat-square&logo=googlecloud&logoColor=white" alt="Cloud Run ready">
+<img src="https://github.com/vinimabreu/lead-quorum/actions/workflows/ci.yml/badge.svg" alt="CI">
 </p>
 
 A distributed multi-agent lead qualifier built on Google's Agent Development Kit (ADK) and
