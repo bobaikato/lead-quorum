@@ -54,7 +54,7 @@ jobs:
           - name: macos
             os: macos-latest
             native_execution: true
-            full_runtime_proof: false
+            full_runtime_proof: true
           - name: windows
             os: windows-latest
             native_execution: false
@@ -151,7 +151,7 @@ jobs:
       - name: Execute app workflow runtime proof
         if: ${{ matrix.native_execution && matrix.full_runtime_proof }}
         shell: bash
-        run: ota up --workflow app --stream .
+        run: ota proof runtime --json --workflow app . > ota-proof-runtime.json
 
       - name: Build Docker image
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -176,3 +176,4 @@ jobs:
           path: |
             ota-validate.json
             ota-doctor.json
+            ota-proof-runtime.json
