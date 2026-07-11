@@ -29,6 +29,21 @@ env:
         - "TRUE"
     GOOGLE_API_KEY:
       secret: true
+    SERVICE:
+      default: web
+      allowed:
+        - web
+        - a2a
+    AGENT:
+      default: enrichment
+      allowed:
+        - enrichment
+        - rederive
+    PORT:
+      default: "8080"
+    PUBLIC_URL: {}
+    ENRICHMENT_CARD_URL: {}
+    REDERIVE_CARD_URL: {}
   sources:
     - kind: dotenv
       path: .env
