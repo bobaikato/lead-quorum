@@ -8,6 +8,7 @@ SUBMISSION.md
 # Local virtual environment
 .venv/
 .ota/state/
+.ota/contracts/
 .ota/receipts/
 .ota/proof/
 

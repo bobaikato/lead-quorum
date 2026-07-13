@@ -1,7 +1,7 @@
 version: 1
 metadata:
   ota:
-    minimum_version: "1.6.23"
+    minimum_version: "1.6.24"
 
 project:
   name: lead-quorum
@@ -13,6 +13,11 @@ execution:
   contexts:
     host:
       backend: native
+    image:
+      backend: container
+      lifecycle: ephemeral
+      container:
+        image: lead-quorum:local
 
 toolchains:
   python:
@@ -283,9 +288,28 @@ tasks:
       network: true
       network_kind: broad
     notes: |
-      The Dockerfile is real repo truth, but this lane remains command-owned because the repo only
-      publishes a general Dockerfile/Cloud Run path today rather than a first-class compose or
-      container-runtime contract shape.
+      This builds the Dockerfile image consumed by `test:container`. The build remains a
+      command-owned host lane because the repository publishes a Dockerfile rather than a Compose
+      topology; its broad network effect makes the resulting verification closure non-agent-safe.
+
+  test:container:
+    context: image
+    description: Run the deterministic verification surface inside the repository Dockerfile image
+    category: test
+    command:
+      exe: python
+      args:
+        - -m
+        - pytest
+        - tests/test_scoring.py
+        - tests/test_corroboration.py
+        - tests/test_scoring_agent.py
+        - tests/test_distributed_build.py
+        - -q
+    notes: |
+      This is the container-owned counterpart to `test`. It proves the deterministic suite using
+      the dependencies baked into the repository's Dockerfile image, not the native `.venv` lane.
+      Use `ota up --workflow verify:container` to build the image before this lane runs.
 
 workflows:
   default: app
@@ -316,6 +340,17 @@ workflows:
     notes: |
       This is the stable default verification path for CI and agents because it does not require a
       live API key.
+
+  verify:container:
+    intent: ci_validation
+    description: Deterministic verification in the repository Dockerfile image
+    setup:
+      task: docker:build
+    run:
+      task: test:container
+    notes: |
+      This proves the Dockerfile-owned runtime path. Its host build setup has broad network effects,
+      so it is a human/CI execution lane rather than an agent-safe closure.
 
   live:
     description: Live end-to-end verification against Gemini
