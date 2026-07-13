@@ -177,3 +177,68 @@ jobs:
             ota-validate.json
             ota-doctor.json
             ota-proof-runtime.json
+
+  container:
+    name: Ota Container Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python 3.12 for contract diagnosis
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Set up ota
+        uses: ota-run/setup@v1.0.8
+        with:
+          source: contract
+          contract-path: ota.yaml
+
+      - name: Validate contract
+        shell: bash
+        run: ota validate .
+
+      - name: List task surfaces
+        shell: bash
+        run: |
+          ota tasks --use .
+          ota tasks --safe --use .
+
+      - name: Build Dockerfile image
+        shell: bash
+        run: ota run docker:build --stream .
+
+      - name: Dry-run container verification workflow
+        shell: bash
+        run: ota up --workflow verify:container --dry-run --json .
+
+      - name: Dry-run container verification task
+        shell: bash
+        run: ota run test:container --dry-run --json .
+
+      - name: Diagnose container verification workflow
+        shell: bash
+        run: ota doctor --workflow verify:container --json . > ota-container-doctor.json
+
+      - name: Execute container verification workflow
+        shell: bash
+        run: ota up --workflow verify:container --stream .
+
+      - name: Execute container verification task
+        shell: bash
+        run: ota run test:container --stream .
+
+      - name: Archive container receipt
+        shell: bash
+        run: ota receipt --workflow verify:container --json --archive .
+
+      - name: Upload container diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ota-container-diagnostics
+          path: ota-container-doctor.json
