@@ -271,23 +271,22 @@ tasks:
   docker:build:
     description: Build the repo's single-image container artifact
     category: build
-    command:
-      exe: docker
-      args:
-        - build
-        - -t
-        - lead-quorum:local
-        - .
+    action:
+      kind: build_container_image
+      file: Dockerfile
+      context: .
+      tag: lead-quorum:local
     requirements:
       tools:
         docker: "*"
     effects:
       network: true
       network_kind: broad
+      external_state:
+        - docker
     notes: |
-      This builds the Dockerfile image consumed by `test:container`. The build remains a
-      command-owned host lane because the repository publishes a Dockerfile rather than a Compose
-      topology; its broad network effect makes the resulting verification closure non-agent-safe.
+      This builds the Dockerfile image consumed by `test:container`. The broad network effect
+      makes the resulting verification closure non-agent-safe.
 
   test:container:
     context: image
