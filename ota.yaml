@@ -67,6 +67,9 @@ surfaces:
     visibility: internal
     port: 8000
     path: /
+    readiness:
+      kind: http
+      path: /healthz
 
 tasks:
   setup:
@@ -129,6 +132,7 @@ tasks:
         cwd: .
         mode: pip_requirements
         requirements_file: requirements.txt
+        default_index: https://pypi.org/simple
     depends_on:
       - setup:venv
     requirements:
@@ -204,13 +208,12 @@ tasks:
       args:
         - web.app:app
       runtime_projection:
-        listener: web:http
+        listener: web
         adapter: uvicorn
     runtime:
       kind: service
-      listeners:
-        web:http:
-          protocol: http
+      surfaces:
+        web:
           bind:
             address: 127.0.0.1
             port:
@@ -224,12 +227,6 @@ tasks:
                 value: 8000
               primary: true
               path: /
-      surfaces:
-        - web
-      readiness:
-        kind: http
-        listener: web:http
-        path: /healthz
     requirements:
       toolchains:
         - python
