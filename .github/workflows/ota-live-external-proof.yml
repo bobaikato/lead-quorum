@@ -1,0 +1,48 @@
+name: "Proof: Ota live external lanes"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  OTA_NO_UPDATE_CHECK: "1"
+  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+
+jobs:
+  live-external:
+    name: Gemini live and distributed proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up ota
+        uses: ota-run/setup@493cba84bf7f7c11c9e8e996d832d93a89c62184 # v1.0.8
+        with:
+          source: contract
+          contract-path: ota.yaml
+
+      - name: Require live API key
+        shell: bash
+        run: test -n "$GOOGLE_API_KEY"
+
+      - name: Execute live workflow
+        shell: bash
+        run: ota up --workflow live --stream .
+
+      - name: Execute distributed workflow
+        shell: bash
+        run: ota up --workflow distributed --stream .

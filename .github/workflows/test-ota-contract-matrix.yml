@@ -14,7 +14,6 @@ permissions:
 
 env:
   OTA_NO_UPDATE_CHECK: "1"
-  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
 jobs:
   native:
@@ -53,7 +52,7 @@ jobs:
           enable-cache: true
 
       - name: Set up ota
-        uses: ota-run/setup@v1.0.8
+        uses: ota-run/setup@493cba84bf7f7c11c9e8e996d832d93a89c62184 # v1.0.8
         with:
           source: contract
           contract-path: ota.yaml
@@ -136,16 +135,6 @@ jobs:
         shell: bash
         run: ota run docker:build --stream .
 
-      - name: Execute live workflow when secret is present
-        if: ${{ matrix.os == 'ubuntu-latest' && env.GOOGLE_API_KEY != '' }}
-        shell: bash
-        run: ota up --workflow live --stream .
-
-      - name: Execute distributed workflow when secret is present
-        if: ${{ matrix.os == 'ubuntu-latest' && env.GOOGLE_API_KEY != '' }}
-        shell: bash
-        run: ota up --workflow distributed --stream .
-
       - name: Upload artifacts on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -171,7 +160,7 @@ jobs:
           python-version: "3.12"
 
       - name: Set up ota
-        uses: ota-run/setup@v1.0.8
+        uses: ota-run/setup@493cba84bf7f7c11c9e8e996d832d93a89c62184 # v1.0.8
         with:
           source: contract
           contract-path: ota.yaml
