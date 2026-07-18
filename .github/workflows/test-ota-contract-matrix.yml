@@ -109,6 +109,21 @@ jobs:
           ota doctor --workflow verify --json . > ota-doctor.json
           ota doctor --workflow verify .
 
+      - name: Assert bounded proof stays unknown without archival evidence
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        shell: bash
+        run: |
+          jq -e '
+            .claim_assurance
+            | any(
+              .subject.kind == "workflow"
+              and .subject.name == "verify"
+              and .family == "proof_breadth"
+              and .declaration.value == "bounded_proof"
+              and .assurance.status == "unknown"
+            )
+          ' ota-doctor.json
+
       - name: Dry-run supported task surface
         if: ${{ matrix.native_execution }}
         shell: bash

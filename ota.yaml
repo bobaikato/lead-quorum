@@ -333,9 +333,12 @@ workflows:
       task: setup
     run:
       task: test
+    proof:
+      claim: bounded
     notes: |
       This is the stable default verification path for CI and agents because it does not require a
-      live API key.
+      live API key. Its bounded proof claim remains unknown until this exact workflow produces a
+      matching immutable runtime-proof archive.
 
   verify:container:
     intent: ci_validation
@@ -392,8 +395,8 @@ agent:
     ota:
       note: Only install ota if it is missing and installation is approved.
       source:
-        kind: version
-        version: v1.6.24
+        kind: branch
+        branch: 1.6.25-implementation
   notes: |
     Start with `ota validate`, then `ota doctor`, then `ota tasks --use`.
     Prefer `ota up --workflow verify` for deterministic validation and use the `live` or
