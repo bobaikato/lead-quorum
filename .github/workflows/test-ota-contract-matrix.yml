@@ -147,6 +147,23 @@ jobs:
           ota up --workflow live --dry-run --json .
           ota up --workflow distributed --dry-run --json .
 
+      - name: Prove fresh native virtualenv boundary
+        if: ${{ matrix.full_runtime_proof }}
+        shell: bash
+        run: |
+          ota proof runtime --json --workflow app . > ota-proof-runtime-fresh.json
+          jq -e '
+            (.execution_boundary.target_freshness == "cold_start_verified")
+            and (.execution_boundary.prerequisites
+              | any(
+                  .id == "filesystem:.venv"
+                  and .precondition == "absent"
+                  and .state == "created_this_run"
+                  and (.materializations | length == 1)
+                  and (.assertions | length >= 1)
+                ))
+          ' ota-proof-runtime-fresh.json
+
       - name: Execute deterministic task surface
         if: ${{ matrix.native_execution }}
         shell: bash
@@ -157,10 +174,20 @@ jobs:
         shell: bash
         run: ota up --workflow verify --stream .
 
-      - name: Execute app workflow runtime proof
+      - name: Prove reused native virtualenv boundary
         if: ${{ matrix.native_execution && matrix.full_runtime_proof }}
         shell: bash
-        run: ota proof runtime --json --workflow app . > ota-proof-runtime.json
+        run: |
+          ota proof runtime --json --workflow app . > ota-proof-runtime-reused.json
+          jq -e '
+            (.execution_boundary.target_freshness == "persistent_state_reused")
+            and (.execution_boundary.prerequisites
+              | any(
+                  .id == "filesystem:.venv"
+                  and .precondition == "present"
+                  and .state == "verified_reused"
+                ))
+          ' ota-proof-runtime-reused.json
 
       - name: Build Docker image
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -175,7 +202,8 @@ jobs:
           path: |
             ota-validate.json
             ota-doctor.json
-            ota-proof-runtime.json
+            ota-proof-runtime-fresh.json
+            ota-proof-runtime-reused.json
 
   container:
     name: Ota Container Verification
