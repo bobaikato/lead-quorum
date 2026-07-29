@@ -1,7 +1,7 @@
 version: 1
 metadata:
   ota:
-    minimum_version: "1.6.24"
+    minimum_version: "1.6.25"
 
 project:
   name: lead-quorum
@@ -393,7 +393,7 @@ agent:
       note: Only install ota if it is missing and installation is approved.
       source:
         kind: version
-        version: v1.6.24
+        version: v1.6.25
   notes: |
     Start with `ota validate`, then `ota doctor`, then `ota tasks --use`.
     Prefer `ota up --workflow verify` for deterministic validation and use the `live` or
