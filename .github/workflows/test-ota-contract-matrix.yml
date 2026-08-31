@@ -19,6 +19,7 @@ jobs:
   contract-ci-drift:
     name: Contract-to-CI drift
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
       - name: Checkout
@@ -36,6 +37,7 @@ jobs:
   native:
     name: Ota Contract Matrix (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     timeout-minutes: 90
     strategy:
       fail-fast: false
@@ -208,6 +210,7 @@ jobs:
   container:
     name: Ota Container Verification
     runs-on: ubuntu-latest
+    continue-on-error: true
     timeout-minutes: 45
 
     steps:

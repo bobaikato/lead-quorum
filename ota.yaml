@@ -1,7 +1,7 @@
 version: 1
 metadata:
   ota:
-    minimum_version: "1.6.24"
+    minimum_version: "1.6.27"
 
 project:
   name: lead-quorum
@@ -24,6 +24,9 @@ toolchains:
     version: ">=3.12,<3.14"
     package_managers:
       uv: "*"
+    fulfillment:
+      source: uv
+      mode: none
 
 env:
   vars:
@@ -395,8 +398,8 @@ agent:
     ota:
       note: Only install ota if it is missing and installation is approved.
       source:
-        kind: branch
-        branch: 1.6.25-implementation
+        kind: git_rev
+        rev: 52b53517f312b8dba66bd4a4dce53d96350bff69
   notes: |
     Start with `ota validate`, then `ota doctor`, then `ota tasks --use`.
     Prefer `ota up --workflow verify` for deterministic validation and use the `live` or
