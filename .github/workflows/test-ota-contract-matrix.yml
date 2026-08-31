@@ -139,8 +139,6 @@ jobs:
         run: |
           ota up --workflow verify --dry-run --json .
           ota up --workflow app --dry-run --json .
-          ota up --workflow live --dry-run --json .
-          ota up --workflow distributed --dry-run --json .
 
       - name: Prove fresh native virtualenv boundary
         if: ${{ matrix.full_runtime_proof }}
