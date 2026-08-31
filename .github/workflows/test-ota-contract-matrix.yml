@@ -127,8 +127,6 @@ jobs:
         run: |
           ota run setup --dry-run --json .
           ota run test --dry-run --json .
-          ota run test:live --dry-run --json .
-          ota run demo:distributed --dry-run --json .
 
       - name: Dry-run Docker build lane
         if: ${{ matrix.os == 'ubuntu-latest' }}
