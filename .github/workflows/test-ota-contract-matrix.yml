@@ -99,11 +99,6 @@ jobs:
         shell: bash
         run: ota workflows .
 
-      - name: Execute setup task
-        if: ${{ matrix.native_execution }}
-        shell: bash
-        run: ota run setup --stream .
-
       - name: Doctor contract
         if: ${{ matrix.native_execution }}
         shell: bash
@@ -165,6 +160,11 @@ jobs:
                   and (.assertions | length >= 1)
                 ))
           ' ota-proof-runtime-fresh.json
+
+      - name: Execute setup task
+        if: ${{ matrix.native_execution }}
+        shell: bash
+        run: ota run setup --stream .
 
       - name: Execute deterministic task surface
         if: ${{ matrix.native_execution }}
