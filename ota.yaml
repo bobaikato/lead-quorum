@@ -1,7 +1,7 @@
 version: 1
 metadata:
   ota:
-    minimum_version: "1.6.25"
+    minimum_version: "1.6.27"
 
 project:
   name: lead-quorum
@@ -24,6 +24,9 @@ toolchains:
     version: ">=3.12,<3.14"
     package_managers:
       uv: "*"
+    fulfillment:
+      source: uv
+      mode: none
 
 env:
   vars:
@@ -333,9 +336,12 @@ workflows:
       task: setup
     run:
       task: test
+    proof:
+      claim: bounded
     notes: |
       This is the stable default verification path for CI and agents because it does not require a
-      live API key.
+      live API key. Its bounded proof claim remains unknown until this exact workflow produces a
+      matching immutable runtime-proof archive.
 
   verify:container:
     intent: ci_validation
@@ -393,7 +399,7 @@ agent:
       note: Only install ota if it is missing and installation is approved.
       source:
         kind: version
-        version: v1.6.25
+        version: v1.6.27
   notes: |
     Start with `ota validate`, then `ota doctor`, then `ota tasks --use`.
     Prefer `ota up --workflow verify` for deterministic validation and use the `live` or

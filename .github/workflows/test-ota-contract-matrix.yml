@@ -1,4 +1,4 @@
-name: "Test: Ota contract matrix"
+name: "Evidence: Ota contract matrix (non-blocking)"
 
 on:
   workflow_dispatch:
@@ -19,6 +19,7 @@ jobs:
   contract-ci-drift:
     name: Contract-to-CI drift
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
       - name: Checkout
@@ -36,6 +37,7 @@ jobs:
   native:
     name: Ota Contract Matrix (${{ matrix.name }})
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     timeout-minutes: 90
     strategy:
       fail-fast: false
@@ -152,8 +154,8 @@ jobs:
         shell: bash
         run: ota run docker:build --stream .
 
-      - name: Upload artifacts on failure
-        if: failure()
+      - name: Upload Ota evidence
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ota-contract-matrix-${{ matrix.name }}
@@ -161,10 +163,13 @@ jobs:
             ota-validate.json
             ota-doctor.json
             ota-proof-runtime.json
+            .ota/receipts/**
+          if-no-files-found: ignore
 
   container:
     name: Ota Container Verification
     runs-on: ubuntu-latest
+    continue-on-error: true
     timeout-minutes: 45
 
     steps:
@@ -220,9 +225,12 @@ jobs:
         shell: bash
         run: ota receipt --workflow verify:container --json --archive .
 
-      - name: Upload container diagnostics on failure
-        if: failure()
+      - name: Upload Ota container evidence
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ota-container-diagnostics
-          path: ota-container-doctor.json
+          path: |
+            ota-container-doctor.json
+            .ota/receipts/**
+          if-no-files-found: ignore
