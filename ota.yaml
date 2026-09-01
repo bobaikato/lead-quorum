@@ -398,8 +398,8 @@ agent:
     ota:
       note: Only install ota if it is missing and installation is approved.
       source:
-        kind: git_rev
-        rev: 52b53517f312b8dba66bd4a4dce53d96350bff69
+        kind: version
+        version: v1.6.27
   notes: |
     Start with `ota validate`, then `ota doctor`, then `ota tasks --use`.
     Prefer `ota up --workflow verify` for deterministic validation and use the `live` or
